@@ -1,0 +1,17 @@
+apiVersion: recordset.dns-v2.m.crossplane.io/v1alpha1
+kind: AAAARecordSet
+metadata:
+  annotations:
+    meta.upbound.io/example-id: recordset/v1alpha1/aaaarecordset
+  labels:
+    testing.upbound.io/example-name: www
+  name: www
+  namespace: upbound-system
+spec:
+  forProvider:
+    addresses:
+    - fdd5:e282:43b8:5303:dead:beef:cafe:babe
+    - fdd5:e282:43b8:5303:cafe:babe:dead:beef
+    name: www
+    ttl: 300
+    zone: example.com.

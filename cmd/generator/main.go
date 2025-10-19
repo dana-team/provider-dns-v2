@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/crossplane/upjet/v2/pkg/pipeline"
 
-	"github.com/crossplane/upjet-provider-template/config"
+	"github.com/dana-team/provider-dns-v2/config"
 )
 
 func main() {
@@ -16,8 +17,9 @@ func main() {
 	}
 	rootDir := os.Args[1]
 	absRootDir, err := filepath.Abs(rootDir)
+	ctx := context.Background()
 	if err != nil {
 		panic(fmt.Sprintf("cannot calculate the absolute path with %s", rootDir))
 	}
-	pipeline.Run(config.GetProvider(), config.GetProviderNamespaced(), absRootDir)
+	pipeline.Run(config.GetProvider(ctx), config.GetProviderNamespaced(ctx), absRootDir)
 }

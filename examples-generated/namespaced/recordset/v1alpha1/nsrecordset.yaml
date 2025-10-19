@@ -1,0 +1,17 @@
+apiVersion: recordset.dns-v2.m.crossplane.io/v1alpha1
+kind: NSRecordSet
+metadata:
+  annotations:
+    meta.upbound.io/example-id: recordset/v1alpha1/nsrecordset
+  labels:
+    testing.upbound.io/example-name: www
+  name: www
+  namespace: upbound-system
+spec:
+  forProvider:
+    name: www
+    nameservers:
+    - a.iana-servers.net.
+    - b.iana-servers.net.
+    ttl: 300
+    zone: example.com.
