@@ -1,0 +1,15 @@
+apiVersion: record.dns-v2.m.crossplane.io/v1alpha1
+kind: CNAMERecord
+metadata:
+  annotations:
+    meta.upbound.io/example-id: record/v1alpha1/cnamerecord
+  labels:
+    testing.upbound.io/example-name: foo
+  name: foo
+  namespace: upbound-system
+spec:
+  forProvider:
+    cname: bar.example.com.
+    name: foo
+    ttl: 300
+    zone: example.com.
