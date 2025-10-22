@@ -19,7 +19,7 @@ provider:
   name: provider-dns-v2
   runtimeConfigRef:
     # -- Name of the DeploymentRuntimeConfig object to use
-    name: dns-config
+    name: dns-config-v2
 
 realm:
   # -- Name of the Kerberos Realm
@@ -55,7 +55,7 @@ deploymentRuntimeConfig:
 
 # -- Provider authentication configuration
 providerConfig:
-  name: dns-default
+  name: dns-v2-default-cluster
   credentials:
     source: Secret
     secretRef:
