@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/crossplane/crossplane-runtime/v2/pkg/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	tfsdk "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/hashicorp/terraform-provider-dns/xpprovider"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -51,8 +48,11 @@ const (
 )
 
 // TerraformSetupBuilder builds Terraform a terraform.SetupFn function which
-// returns Terraform provider setup configuration
-func TerraformSetupBuilder(version, providerSource, providerVersion string, tfProvider *schema.Provider) terraform.SetupFn {
+// returns Terraform provider setup configuration.
+//
+// This function is called once during provider initialization to create a SetupFn.
+// The returned SetupFn is then called by Upjet for each managed resource reconciliation.
+func TerraformSetupBuilder(version, providerSource, providerVersion string) terraform.SetupFn {
 	return func(ctx context.Context, client client.Client, mg resource.Managed) (terraform.Setup, error) {
 		ps := terraform.Setup{
 			Version: version,
@@ -71,50 +71,24 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string, tfPr
 		if err != nil {
 			return ps, errors.Wrap(err, errExtractCredentials)
 		}
+
 		creds := map[string]string{}
 		if err := json.Unmarshal(data, &creds); err != nil {
 			return ps, errors.Wrap(err, errUnmarshalCredentials)
 		}
 
-		// Set credentials in Terraform provider configuration.
 		ps.Configuration = map[string]any{}
+
 		authConfig := buildAuthConfig(creds)
-		ps.Configuration[update] = []map[string]any{authConfig}
-		return ps, errors.Wrap(configureNoForkDNSClient(ctx, &ps, *tfProvider), "failed to configure the Terraform DNS provider meta")
+
+		ps.Configuration[update] = []any{authConfig}
+
+		return ps, nil
 	}
 }
 
-// configureNoForkDNSClient populates the supplied *terraform.Setup with
-// Terraform Plugin SDK style DNS client (Meta) and Terraform Plugin Framework
-// style FrameworkProvider
-func configureNoForkDNSClient(ctx context.Context, ps *terraform.Setup, p schema.Provider) error {
-	diag := p.Configure(context.WithoutCancel(ctx), &tfsdk.ResourceConfig{
-		Config: ps.Configuration,
-	})
-	if diag != nil && diag.HasError() {
-		return errors.Errorf("failed to configure the provider: %v", diag)
-	}
-	ps.Meta = p.Meta()
-	fwProvider, _ := xpprovider.GetProvider(ctx)
-	ps.FrameworkProvider = fwProvider
-
-	return nil
-}
-
-func toSharedPCSpec(pc *clusterv1beta1.ProviderConfig) (*namespacedv1beta1.ProviderConfigSpec, error) {
-	if pc == nil {
-		return nil, nil
-	}
-	data, err := json.Marshal(pc.Spec)
-	if err != nil {
-		return nil, err
-	}
-
-	var mSpec namespacedv1beta1.ProviderConfigSpec
-	err = json.Unmarshal(data, &mSpec)
-	return &mSpec, err
-}
-
+// resolveProviderConfig determines which ProviderConfig to use based on the resource type
+// and extracts its spec. Handles both legacy (cluster-scoped) and modern (namespace-scoped) resources.
 func resolveProviderConfig(ctx context.Context, crClient client.Client, mg resource.Managed) (*namespacedv1beta1.ProviderConfigSpec, error) {
 	switch managed := mg.(type) {
 	case resource.LegacyManaged:
@@ -126,6 +100,7 @@ func resolveProviderConfig(ctx context.Context, crClient client.Client, mg resou
 	}
 }
 
+// resolveLegacy handles legacy cluster-scoped ProviderConfig resources
 func resolveLegacy(ctx context.Context, client client.Client, mg resource.LegacyManaged) (*namespacedv1beta1.ProviderConfigSpec, error) {
 	configRef := mg.GetProviderConfigReference()
 	if configRef == nil {
@@ -144,6 +119,7 @@ func resolveLegacy(ctx context.Context, client client.Client, mg resource.Legacy
 	return toSharedPCSpec(pc)
 }
 
+// resolveModern handles modern namespace-scoped ProviderConfig resources
 func resolveModern(ctx context.Context, crClient client.Client, mg resource.ModernManaged) (*namespacedv1beta1.ProviderConfigSpec, error) {
 	configRef := mg.GetProviderConfigReference()
 	if configRef == nil {
@@ -154,19 +130,19 @@ func resolveModern(ctx context.Context, crClient client.Client, mg resource.Mode
 	if err != nil {
 		return nil, errors.Wrap(err, "unknown GVK for ProviderConfig")
 	}
+
 	pcObj, ok := pcRuntimeObj.(client.Object)
 	if !ok {
-		// This indicates a programming error, types are not properly generated
-		return nil, errors.New(" is not an Object")
+		return nil, errors.New("ProviderConfig is not a client.Object")
 	}
 
-	// Namespace will be ignored if the PC is a cluster-scoped type
 	if err := crClient.Get(ctx, types.NamespacedName{Name: configRef.Name, Namespace: mg.GetNamespace()}, pcObj); err != nil {
 		return nil, errors.Wrap(err, errGetProviderConfig)
 	}
 
 	var pcSpec namespacedv1beta1.ProviderConfigSpec
 	pcu := &namespacedv1beta1.ProviderConfigUsage{}
+
 	switch pc := pcObj.(type) {
 	case *namespacedv1beta1.ProviderConfig:
 		pcSpec = pc.Spec
@@ -178,14 +154,33 @@ func resolveModern(ctx context.Context, crClient client.Client, mg resource.Mode
 	default:
 		return nil, errors.New("unknown provider config type")
 	}
+
 	t := resource.NewProviderConfigUsageTracker(crClient, pcu)
 	if err := t.Track(ctx, mg); err != nil {
 		return nil, errors.Wrap(err, errTrackUsage)
 	}
+
 	return &pcSpec, nil
 }
 
-// buildAuthConfig builds the auth configuration for the provider.
+// toSharedPCSpec converts a cluster-scoped ProviderConfig spec to the shared spec format
+func toSharedPCSpec(pc *clusterv1beta1.ProviderConfig) (*namespacedv1beta1.ProviderConfigSpec, error) {
+	if pc == nil {
+		return nil, nil
+	}
+
+	data, err := json.Marshal(pc.Spec)
+	if err != nil {
+		return nil, err
+	}
+
+	var mSpec namespacedv1beta1.ProviderConfigSpec
+	err = json.Unmarshal(data, &mSpec)
+	return &mSpec, err
+}
+
+// buildAuthConfig builds the auth configuration for the DNS provider.
+// This constructs the nested map structure that matches the Terraform DNS provider schema.
 func buildAuthConfig(creds map[string]string) map[string]any {
 	config := map[string]any{}
 
@@ -197,7 +192,7 @@ func buildAuthConfig(creds map[string]string) map[string]any {
 		switch rfc {
 		case gsstsigRFC:
 			authConfig := buildGSSTSIGAuthConfig(creds)
-			config[gssapi] = []map[string]any{authConfig}
+			config[gssapi] = []any{authConfig}
 		case keyBasedTransactionRFC:
 			secretBasedTransactionAuthConfig := buildSecretBasedTransactionAuthConfig(creds)
 			mergeMaps(config, secretBasedTransactionAuthConfig)
@@ -208,7 +203,6 @@ func buildAuthConfig(creds map[string]string) map[string]any {
 	mergeMaps(config, optionalConfig)
 
 	return config
-
 }
 
 // buildGSSTSIGAuthConfig builds the configuration for GSS-TSIG authentication (RFC 3645).
@@ -234,7 +228,7 @@ func buildGSSTSIGAuthConfig(creds map[string]string) map[string]any {
 	return config
 }
 
-// // buildGSSTSIGAuthConfig builds the configuration for GSS-TSIG authentication (RFC 2845).
+// buildSecretBasedTransactionAuthConfig builds the configuration for secret-based transaction authentication (RFC 2845).
 func buildSecretBasedTransactionAuthConfig(creds map[string]string) map[string]any {
 	config := make(map[string]any)
 
@@ -276,7 +270,7 @@ func buildOptionalConfig(creds map[string]string) map[string]any {
 	return config
 }
 
-// mergeMaps takes all the keys in B and inserts them into A.
+// mergeMaps merges all keys from map b into map a.
 func mergeMaps(a, b map[string]any) {
 	for k, v := range b {
 		a[k] = v
