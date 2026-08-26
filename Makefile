@@ -12,7 +12,7 @@ TERRAFORM_VERSION_VALID := $(shell [ "$(TERRAFORM_VERSION)" = "`printf "$(TERRAF
 
 export TERRAFORM_PROVIDER_SOURCE ?= hashicorp/dns
 export TERRAFORM_PROVIDER_REPO ?= https://github.com/hashicorp/terraform-provider-dns
-export TERRAFORM_PROVIDER_VERSION ?= 3.4.0
+export TERRAFORM_PROVIDER_VERSION ?= 3.6.1
 export TERRAFORM_PROVIDER_DOWNLOAD_NAME ?= terraform-provider-dns
 export TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX ?= https://releases.hashicorp.com/$(TERRAFORM_PROVIDER_DOWNLOAD_NAME)/$(TERRAFORM_PROVIDER_VERSION)
 export TERRAFORM_NATIVE_PROVIDER_BINARY ?= terraform-provider-dns_v$(TERRAFORM_PROVIDER_VERSION)
@@ -44,8 +44,8 @@ NPROCS ?= 1
 # to half the number of CPU cores.
 GO_TEST_PARALLEL := $(shell echo $$(( $(NPROCS) / 2 )))
 
-GO_REQUIRED_VERSION ?= 1.24
-GOLANGCILINT_VERSION ?= 2.4.0
+GO_REQUIRED_VERSION ?= 1.26
+GOLANGCILINT_VERSION ?= 2.13.1
 GO_STATIC_PACKAGES = $(GO_PROJECT)/cmd/provider $(GO_PROJECT)/cmd/generator
 GO_LDFLAGS += -X $(GO_PROJECT)/internal/version.Version=$(VERSION)
 GO_SUBDIRS += cmd internal apis

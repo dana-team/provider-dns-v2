@@ -83,9 +83,9 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 
 		ps.Configuration[update] = []any{authConfig}
 
-		fwProvider, _ := xpprovider.GetProvider(ctx)
+		fwProvider, _ := xpprovider.GetProvider(ctx) //nolint:staticcheck // xpprovider.GetProvider isn't guaranteed nil-safe across forked terraform-provider-dns versions; this guards a prior nil-pointer panic (d499c93)
 
-		if fwProvider == nil {
+		if fwProvider == nil { //nolint:staticcheck // see above
 			return ps, errors.New("framework provider is nil")
 		}
 
@@ -99,7 +99,7 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 // and extracts its spec. Handles both legacy (cluster-scoped) and modern (namespace-scoped) resources.
 func resolveProviderConfig(ctx context.Context, crClient client.Client, mg resource.Managed) (*namespacedv1beta1.ProviderConfigSpec, error) {
 	switch managed := mg.(type) {
-	case resource.LegacyManaged:
+	case resource.LegacyManaged: //nolint:staticcheck // legacy cluster-scoped ProviderConfig support is intentional, not a candidate for migration
 		return resolveLegacy(ctx, crClient, managed)
 	case resource.ModernManaged:
 		return resolveModern(ctx, crClient, managed)
@@ -109,7 +109,7 @@ func resolveProviderConfig(ctx context.Context, crClient client.Client, mg resou
 }
 
 // resolveLegacy handles legacy cluster-scoped ProviderConfig resources
-func resolveLegacy(ctx context.Context, client client.Client, mg resource.LegacyManaged) (*namespacedv1beta1.ProviderConfigSpec, error) {
+func resolveLegacy(ctx context.Context, client client.Client, mg resource.LegacyManaged) (*namespacedv1beta1.ProviderConfigSpec, error) { //nolint:staticcheck // legacy cluster-scoped ProviderConfig support is intentional, not a candidate for migration
 	configRef := mg.GetProviderConfigReference()
 	if configRef == nil {
 		return nil, errors.New(errNoProviderConfig)
