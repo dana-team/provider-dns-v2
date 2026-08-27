@@ -105,6 +105,10 @@ linters:
       - linters:
           - gosec
         text: 'G104:'
+      - linters:
+          - staticcheck
+        text: 'scheme\.Builder is deprecated'
+        path: apis/.*/register\.go
     paths:
       - zz_\..+\.go$
       - third_party$
