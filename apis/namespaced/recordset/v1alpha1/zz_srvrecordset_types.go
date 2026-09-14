@@ -10,8 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	v1 "github.com/crossplane/crossplane-runtime/v2/apis/common/v1"
-	v2 "github.com/crossplane/crossplane-runtime/v2/apis/common/v2"
+	v2 "github.com/crossplane/crossplane/apis/v2/core/v2"
 )
 
 type SRVRecordSetInitParameters struct {
@@ -154,8 +153,8 @@ type SRVRecordSetSpec struct {
 
 // SRVRecordSetStatus defines the observed state of SRVRecordSet.
 type SRVRecordSetStatus struct {
-	v1.ResourceStatus `json:",inline"`
-	AtProvider        SRVRecordSetObservation `json:"atProvider,omitempty"`
+	v2.ManagedResourceStatus `json:",inline"`
+	AtProvider               SRVRecordSetObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true

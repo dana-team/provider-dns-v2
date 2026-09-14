@@ -10,7 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	v1 "github.com/crossplane/crossplane-runtime/v2/apis/common/v1"
+	v2 "github.com/crossplane/crossplane/apis/v2/core/v2"
 )
 
 type TXTRecordSetInitParameters struct {
@@ -78,8 +78,8 @@ type TXTRecordSetParameters struct {
 
 // TXTRecordSetSpec defines the desired state of TXTRecordSet
 type TXTRecordSetSpec struct {
-	v1.ResourceSpec `json:",inline"`
-	ForProvider     TXTRecordSetParameters `json:"forProvider"`
+	v2.ClusterManagedResourceSpec `json:",inline"`
+	ForProvider                   TXTRecordSetParameters `json:"forProvider"`
 	// THIS IS A BETA FIELD. It will be honored
 	// unless the Management Policies feature flag is disabled.
 	// InitProvider holds the same fields as ForProvider, with the exception
@@ -95,8 +95,8 @@ type TXTRecordSetSpec struct {
 
 // TXTRecordSetStatus defines the observed state of TXTRecordSet.
 type TXTRecordSetStatus struct {
-	v1.ResourceStatus `json:",inline"`
-	AtProvider        TXTRecordSetObservation `json:"atProvider,omitempty"`
+	v2.ManagedResourceStatus `json:",inline"`
+	AtProvider               TXTRecordSetObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true
