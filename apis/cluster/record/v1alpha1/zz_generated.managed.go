@@ -6,104 +6,104 @@
 
 package v1alpha1
 
-import xpv1 "github.com/crossplane/crossplane-runtime/v2/apis/common/v1"
+import xpv2 "github.com/crossplane/crossplane/apis/v2/core/v2"
 
 // GetCondition of this CNAMERecord.
-func (mg *CNAMERecord) GetCondition(ct xpv1.ConditionType) xpv1.Condition {
+func (mg *CNAMERecord) GetCondition(ct xpv2.ConditionType) xpv2.Condition {
 	return mg.Status.GetCondition(ct)
 }
 
 // GetDeletionPolicy of this CNAMERecord.
-func (mg *CNAMERecord) GetDeletionPolicy() xpv1.DeletionPolicy {
+func (mg *CNAMERecord) GetDeletionPolicy() xpv2.DeletionPolicy {
 	return mg.Spec.DeletionPolicy
 }
 
 // GetManagementPolicies of this CNAMERecord.
-func (mg *CNAMERecord) GetManagementPolicies() xpv1.ManagementPolicies {
+func (mg *CNAMERecord) GetManagementPolicies() xpv2.ManagementPolicies {
 	return mg.Spec.ManagementPolicies
 }
 
 // GetProviderConfigReference of this CNAMERecord.
-func (mg *CNAMERecord) GetProviderConfigReference() *xpv1.Reference {
+func (mg *CNAMERecord) GetProviderConfigReference() *xpv2.Reference {
 	return mg.Spec.ProviderConfigReference
 }
 
 // GetWriteConnectionSecretToReference of this CNAMERecord.
-func (mg *CNAMERecord) GetWriteConnectionSecretToReference() *xpv1.SecretReference {
+func (mg *CNAMERecord) GetWriteConnectionSecretToReference() *xpv2.SecretReference {
 	return mg.Spec.WriteConnectionSecretToReference
 }
 
 // SetConditions of this CNAMERecord.
-func (mg *CNAMERecord) SetConditions(c ...xpv1.Condition) {
+func (mg *CNAMERecord) SetConditions(c ...xpv2.Condition) {
 	mg.Status.SetConditions(c...)
 }
 
 // SetDeletionPolicy of this CNAMERecord.
-func (mg *CNAMERecord) SetDeletionPolicy(r xpv1.DeletionPolicy) {
+func (mg *CNAMERecord) SetDeletionPolicy(r xpv2.DeletionPolicy) {
 	mg.Spec.DeletionPolicy = r
 }
 
 // SetManagementPolicies of this CNAMERecord.
-func (mg *CNAMERecord) SetManagementPolicies(r xpv1.ManagementPolicies) {
+func (mg *CNAMERecord) SetManagementPolicies(r xpv2.ManagementPolicies) {
 	mg.Spec.ManagementPolicies = r
 }
 
 // SetProviderConfigReference of this CNAMERecord.
-func (mg *CNAMERecord) SetProviderConfigReference(r *xpv1.Reference) {
+func (mg *CNAMERecord) SetProviderConfigReference(r *xpv2.Reference) {
 	mg.Spec.ProviderConfigReference = r
 }
 
 // SetWriteConnectionSecretToReference of this CNAMERecord.
-func (mg *CNAMERecord) SetWriteConnectionSecretToReference(r *xpv1.SecretReference) {
+func (mg *CNAMERecord) SetWriteConnectionSecretToReference(r *xpv2.SecretReference) {
 	mg.Spec.WriteConnectionSecretToReference = r
 }
 
 // GetCondition of this PTRRecord.
-func (mg *PTRRecord) GetCondition(ct xpv1.ConditionType) xpv1.Condition {
+func (mg *PTRRecord) GetCondition(ct xpv2.ConditionType) xpv2.Condition {
 	return mg.Status.GetCondition(ct)
 }
 
 // GetDeletionPolicy of this PTRRecord.
-func (mg *PTRRecord) GetDeletionPolicy() xpv1.DeletionPolicy {
+func (mg *PTRRecord) GetDeletionPolicy() xpv2.DeletionPolicy {
 	return mg.Spec.DeletionPolicy
 }
 
 // GetManagementPolicies of this PTRRecord.
-func (mg *PTRRecord) GetManagementPolicies() xpv1.ManagementPolicies {
+func (mg *PTRRecord) GetManagementPolicies() xpv2.ManagementPolicies {
 	return mg.Spec.ManagementPolicies
 }
 
 // GetProviderConfigReference of this PTRRecord.
-func (mg *PTRRecord) GetProviderConfigReference() *xpv1.Reference {
+func (mg *PTRRecord) GetProviderConfigReference() *xpv2.Reference {
 	return mg.Spec.ProviderConfigReference
 }
 
 // GetWriteConnectionSecretToReference of this PTRRecord.
-func (mg *PTRRecord) GetWriteConnectionSecretToReference() *xpv1.SecretReference {
+func (mg *PTRRecord) GetWriteConnectionSecretToReference() *xpv2.SecretReference {
 	return mg.Spec.WriteConnectionSecretToReference
 }
 
 // SetConditions of this PTRRecord.
-func (mg *PTRRecord) SetConditions(c ...xpv1.Condition) {
+func (mg *PTRRecord) SetConditions(c ...xpv2.Condition) {
 	mg.Status.SetConditions(c...)
 }
 
 // SetDeletionPolicy of this PTRRecord.
-func (mg *PTRRecord) SetDeletionPolicy(r xpv1.DeletionPolicy) {
+func (mg *PTRRecord) SetDeletionPolicy(r xpv2.DeletionPolicy) {
 	mg.Spec.DeletionPolicy = r
 }
 
 // SetManagementPolicies of this PTRRecord.
-func (mg *PTRRecord) SetManagementPolicies(r xpv1.ManagementPolicies) {
+func (mg *PTRRecord) SetManagementPolicies(r xpv2.ManagementPolicies) {
 	mg.Spec.ManagementPolicies = r
 }
 
 // SetProviderConfigReference of this PTRRecord.
-func (mg *PTRRecord) SetProviderConfigReference(r *xpv1.Reference) {
+func (mg *PTRRecord) SetProviderConfigReference(r *xpv2.Reference) {
 	mg.Spec.ProviderConfigReference = r
 }
 
 // SetWriteConnectionSecretToReference of this PTRRecord.
-func (mg *PTRRecord) SetWriteConnectionSecretToReference(r *xpv1.SecretReference) {
+func (mg *PTRRecord) SetWriteConnectionSecretToReference(r *xpv2.SecretReference) {
 	mg.Spec.WriteConnectionSecretToReference = r
 }
