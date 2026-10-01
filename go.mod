@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/crossplane/crossplane-runtime/v2 v2.4.0
 	github.com/crossplane/crossplane-tools v0.0.0-20260719180100-659f1dc036c5
-	github.com/crossplane/crossplane/apis/v2 v2.4.0
+	github.com/crossplane/crossplane/apis/v2 v2.4.2
 	github.com/crossplane/upjet/v2 v2.4.1-0.20260911065406-6d9f367b87f4
 	github.com/hashicorp/terraform-provider-dns v2.0.0+incompatible
 	github.com/pkg/errors v0.9.1
