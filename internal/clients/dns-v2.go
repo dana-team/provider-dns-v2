@@ -6,6 +6,7 @@ import (
 
 	"github.com/crossplane/crossplane-runtime/v2/pkg/resource"
 	"github.com/crossplane/upjet/v2/pkg/terraform"
+	tfsdk "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-dns/xpprovider"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -22,6 +23,7 @@ const (
 	errTrackUsage           = "cannot track ProviderConfig usage"
 	errExtractCredentials   = "cannot extract credentials"
 	errUnmarshalCredentials = "cannot unmarshal dns-v2 credentials as JSON"
+	errConfigureProvider    = "cannot configure Terraform DNS provider"
 
 	// general parameters
 	keyRFC       = "rfc"
@@ -83,13 +85,21 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 
 		ps.Configuration[update] = []any{authConfig}
 
-		fwProvider, _ := xpprovider.GetProvider(ctx) //nolint:staticcheck // xpprovider.GetProvider isn't guaranteed nil-safe across forked terraform-provider-dns versions; this guards a prior nil-pointer panic (d499c93)
+		fwProvider, sdkProvider := xpprovider.GetProvider(ctx) //nolint:staticcheck // xpprovider.GetProvider isn't guaranteed nil-safe across forked terraform-provider-dns versions; this guards a prior nil-pointer panic (d499c93)
 
 		if fwProvider == nil { //nolint:staticcheck // see above
 			return ps, errors.New("framework provider is nil")
 		}
 
 		ps.FrameworkProvider = fwProvider
+
+		// Terraform Plugin SDK resources get their DNS client from Meta, unlike
+		// Terraform Plugin Framework resources which are configured by upjet.
+		if diags := sdkProvider.Configure(context.WithoutCancel(ctx), tfsdk.NewResourceConfigRaw(ps.Configuration)); diags.HasError() {
+			return ps, errors.Errorf("%s: %v", errConfigureProvider, diags)
+		}
+
+		ps.Meta = sdkProvider.Meta()
 
 		return ps, nil
 	}
