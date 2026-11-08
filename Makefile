@@ -12,7 +12,7 @@ TERRAFORM_VERSION_VALID := $(shell [ "$(TERRAFORM_VERSION)" = "`printf "$(TERRAF
 
 export TERRAFORM_PROVIDER_SOURCE ?= hashicorp/dns
 export TERRAFORM_PROVIDER_REPO ?= https://github.com/hashicorp/terraform-provider-dns
-export TERRAFORM_PROVIDER_VERSION ?= 3.6.1
+export TERRAFORM_PROVIDER_VERSION ?= 3.6.2
 export TERRAFORM_PROVIDER_DOWNLOAD_NAME ?= terraform-provider-dns
 export TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX ?= https://releases.hashicorp.com/$(TERRAFORM_PROVIDER_DOWNLOAD_NAME)/$(TERRAFORM_PROVIDER_VERSION)
 export TERRAFORM_NATIVE_PROVIDER_BINARY ?= terraform-provider-dns_v$(TERRAFORM_PROVIDER_VERSION)
